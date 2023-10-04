@@ -19,7 +19,7 @@ vel = (0, 0)
 
 t = 0
 dt = 0.01
-v = [100, 1000]
+v = [100, 100]
 p = [0, 0]
 mass = 1
 
@@ -38,10 +38,11 @@ while True:
     # d -> density of fluid
     # A -> cross sectional area of the mass
     # v -> velocity of the mass
-    
-    Dx = 0.5 * 1.225 * v[0]**2 * 0.3 * PI
-    Dy = 0.5 * 1.225 * v[1]**2 * 0.3 * PI
-    F = [0, -G]
+
+    Dx = np.sign(v[0]) * 0.2 * v[0]**2 # 0.5 * 1.255 * v[0]**2 * 0.2
+    Dy = np.sign(v[1]) * 0.2 * v[1]**2 # 0.5 * 1.255 * v[1]**2 * 0.2
+   
+    F = [-Dx, -G-Dy]
 
     v[0] += F[0] / mass * dt
     v[1] += F[1] / mass * dt
@@ -51,8 +52,9 @@ while True:
 
     t += dt
 
-    if t > 20:
+    if v[1] < 0 and p[1] <= 0:
         break;
 
-plt.plot(Ts, Ys)
+plt.plot(Ts, Xs)
 plt.show()
+
