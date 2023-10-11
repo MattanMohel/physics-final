@@ -1,81 +1,43 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from math import *
-from scipy.optimize import curve_fit
-
-TIME_STEP = 0.001 # s
-G = 9.81          # m / s^2
-MASS = 10.0       # kg
-PI = np.pi
+# Import libraries
+from mpl_toolkits.mplot3d import Axes3D 
+import matplotlib.pyplot as plt 
+import numpy as np 
 
 
-def run(theta, v_0, mass, friction, density):
-    p = [0, 0]
-    v = [v_0 * cos(theta), v_0 * sin(theta)]
+# Creating radii and angles
+r = np.linspace(0.125, 1.0, 100) 
+a = np.linspace(0, 2 * np.pi, 
+				100,
+				endpoint = False) 
 
-    Xs = []
-    Ys = []
+# Repeating all angles for every radius 
+a = np.repeat(a[..., np.newaxis], 100, axis = 1) 
 
-    while True:
-        if p[1] < 0 and v[1] < 0:
-            break
+# Creating dataset
+x = np.append(0, (r * np.cos(a))) 
+y = np.append(0, (r * np.sin(a))) 
+z = (np.sin(x ** 4) + np.cos(y ** 4)) 
 
-        mag = sqrt(v[0]**2 + v[1]**2)
+# Creating figure
+fig = plt.figure(figsize =(16, 9)) 
+ax = plt.axes(projection ='3d') 
 
-        Rx = 0.5 * v[0]*mag * density * friction
-        Ry = 0.5 * v[1]*mag * density * friction
+# Creating color map
+my_cmap = plt.get_cmap('hot')
 
-        F = [-Rx, -G*mass-Ry]
+# Creating plot
+trisurf = ax.plot_trisurf(x, y, z,
+						cmap = my_cmap,
+						linewidth = 0.2, 
+						antialiased = True,
+						edgecolor = 'grey') 
+fig.colorbar(trisurf, ax = ax, shrink = 0.5, aspect = 5)
+ax.set_title('Tri-Surface plot')
 
-        v[0] += F[0] / mass * TIME_STEP
-        v[1] += F[1] / mass * TIME_STEP
-
-        p[0] += v[0] * TIME_STEP
-        p[1] += v[1] * TIME_STEP
-
-        Xs += [p[0]]
-        Ys += [p[1]]
-
-    return Xs, Ys
-
-def optimize(v_0, mass, friction, density, STEP=0.01):
-    theta = 0 # radians
-
-    max_dist  = 0
-    max_theta = 0
-
-    while theta < PI / 2:
-        Xs, Ys = run(theta, v_0, mass, friction, density)
-        dist = max(Xs)
-
-        if dist > max_dist:
-            max_dist  = dist
-            max_theta = theta
-    
-        theta += STEP
-    
-    return max_theta
-
-Angles = []
-Drag = []
-
-for i in range(0, 10):
-    drag = i / 10 
-    Max = optimize(100, MASS, drag, 1.225)
-    Angles.append(180 * Max / PI)
-    Drag.append(drag)
-
-def objective(x, a, b, c):
-    return a * b**x + c
-
-popt, _ = curve_fit(objective, Drag, Angles)
-a, b, c = popt
-
-x_line = np.arange(0, 1, 0.05)
-y_line = objective(x_line, a, b, c)
-
-print(f"found f(x) = {a}*{b}**x + {c}")
-
-plt.plot(Drag, Angles)
-plt.plot(x_line, y_line)
-plt.show()
+# Adding labels
+ax.set_xlabel('X-axis', fontweight ='bold') 
+ax.set_ylabel('Y-axis', fontweight ='bold') 
+ax.set_zlabel('Z-axis', fontweight ='bold')
+	
+# show plot
+print(x.shape, y.shape, z.shape)
