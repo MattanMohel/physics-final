@@ -53,8 +53,6 @@ def run(theta, speed, M, K):
         if p[1] < 0 and v[1] < 0:
             break
 
-        mag = sqrt(v[0]**2 + v[1]**2)
-
         Rx = v[0] * K
         Ry = v[1] * K
 
@@ -70,7 +68,7 @@ def run(theta, speed, M, K):
 
 def graph():
     M = 1
-    V = 10
+    V = 1
     SAMPLES = 40
 
     fig = plt.figure(figsize=(9, 6))
